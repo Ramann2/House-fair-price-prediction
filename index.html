@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fair Price Calculator | Real Estate Valuation</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --accent: #e74c3c;
+            --light: #ecf0f1;
+            --dark: #2c3e50;
+            --success: #2ecc71;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --radius: 8px;
+            --bg-color: #f9f9f9;
+            --text-color: #2c3e50;
+            --card-bg: white;
+            --input-bg: white;
+            --border-color: #ddd;
+        }
+
+        .dark-mode {
+            --primary: #3498db;
+            --secondary: #2c3e50;
+            --accent: #e74c3c;
+            --light: #34495e;
+            --dark: #ecf0f1;
+            --success: #27ae60;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            --bg-color: #1a1a1a;
+            --text-color: #ecf0f1;
+            --card-bg: #2c3e50;
+            --input-bg: #34495e;
+            --border-color: #4a6278;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 2rem 1rem;
+            text-align: center;
+            box-shadow: var(--shadow);
+            position: relative;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .theme-toggle {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.3s;
+        }
+
+        .theme-toggle:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .theme-toggle svg {
+            width: 20px;
+            height: 20px;
+            fill: white;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .calculator {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 2rem;
+            box-shadow: var(--shadow);
+            transition: background-color 0.3s;
+        }
+
+        .calculator h2 {
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--light);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        select, input {
+            width: 100%;
+            padding: 0.75rem;
+            background: var(--input-bg);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            font-size: 1rem;
+            transition: border-color 0.3s, background-color 0.3s, color 0.3s;
+        }
+
+        select:focus, input:focus {
+            outline: none;
+            border-color: var(--secondary);
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+        }
+
+        .btn {
+            background: var(--secondary);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--radius);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s, transform 0.2s;
+            width: 100%;
+        }
+
+        .btn:hover {
+            background: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        .result {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 2rem;
+            box-shadow: var(--shadow);
+            text-align: center;
+            transition: background-color 0.3s;
+        }
+
+        .result h2 {
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+
+        .price-display {
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--success);
+            margin: 1.5rem 0;
+        }
+
+        .price-breakdown {
+            background: var(--light);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            margin-top: 1.5rem;
+            text-align: left;
+            transition: background-color 0.3s;
+        }
+
+        .price-breakdown h3 {
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+
+        .breakdown-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .breakdown-item:last-child {
+            border-bottom: none;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .info-section {
+            grid-column: 1 / -1;
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 2rem;
+            box-shadow: var(--shadow);
+            margin-top: 2rem;
+            transition: background-color 0.3s;
+        }
+
+        .info-section h2 {
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .info-card {
+            background: var(--light);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            transition: background-color 0.3s;
+        }
+
+        .info-card h3 {
+            color: var(--secondary);
+            margin-bottom: 0.5rem;
+        }
+
+        footer {
+            background: var(--primary);
+            color: white;
+            text-align: center;
+            padding: 1.5rem;
+            margin-top: 3rem;
+            transition: background-color 0.3s;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 1rem 0;
+        }
+
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-left-color: var(--secondary);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <path d="M12,18c-3.3,0-6-2.7-6-6s2.7-6,6-6s6,2.7,6,6S15.3,18,12,18zM12,8c-2.2,0-4,1.8-4,4c0,2.2,1.8,4,4,4c2.2,0,4-1.8,4-4C16,9.8,14.2,8,12,8z"/>
+                <path d="M12,4c-0.6,0-1-0.4-1-1V1c0-0.6,0.4-1,1-1s1,0.4,1,1v2C13,3.6,12.6,4,12,4z"/>
+                <path d="M12,20c-0.6,0-1,0.4-1,1v2c0,0.6,0.4,1,1,1s1-0.4,1-1v-2C13,20.4,12.6,20,12,20z"/>
+                <path d="M5.6,6.6c-0.3,0-0.5-0.1-0.7-0.3L3.5,4.9c-0.4-0.4-0.4-1,0-1.4s1-0.4,1.4,0l1.4,1.4c0.4,0.4,0.4,1,0,1.4C6.2,6.5,5.9,6.6,5.6,6.6z"/>
+                <path d="M19.8,16.8c-0.3,0-0.5-0.1-0.7-0.3l-1.4-1.4c-0.4-0.4-0.4-1,0-1.4s1-0.4,1.4,0l1.4,1.4c0.4,0.4,0.4,1,0,1.4C20.3,16.7,20,16.8,19.8,16.8z"/>
+                <path d="M3,13H1c-0.6,0-1-0.4-1-1s0.4-1,1-1h2c0.6,0,1,0.4,1,1S3.6,13,3,13z"/>
+                <path d="M23,13h-2c-0.6,0-1-0.4-1-1s0.4-1,1-1h2c0.6,0,1,0.4,1,1S23.6,13,23,13z"/>
+                <path d="M4.2,16.8c-0.3,0-0.5-0.1-0.7-0.3c-0.4-0.4-0.4-1,0-1.4l1.4-1.4c0.4-0.4,1-0.4,1.4,0s0.4,1,0,1.4l-1.4,1.4C4.7,16.7,4.5,16.8,4.2,16.8z"/>
+                <path d="M18.4,6.6c-0.3,0-0.5-0.1-0.7-0.3c-0.4-0.4-0.4-1,0-1.4l1.4-1.4c0.4-0.4,1-0.4,1.4,0s0.4,1,0,1.4l-1.4,1.4C18.9,6.5,18.6,6.6,18.4,6.6z"/>
+            </svg>
+        </button>
+        <h1>Fair Price Calculator</h1>
+        <p>Get an accurate estimate of your property's value based on type, area, and location</p>
+    </header>
+
+    <div class="container">
+        <div class="calculator">
+            <h2>Calculate Your Property Value</h2>
+            <form id="priceCalculator">
+                <div class="form-group">
+                    <label for="propertyType">Property Type</label>
+                    <select id="propertyType" required>
+                        <option value="">Select Property Type</option>
+                        <option value="apartment">Apartment</option>
+                        <option value="house">House</option>
+                        <option value="villa">Villa</option>
+                        <option value="condo">Condominium</option>
+                        <option value="townhouse">Townhouse</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="area">Area (sq ft)</label>
+                    <input type="number" id="area" min="1" required placeholder="Enter property area">
+                </div>
+
+                <div class="form-group">
+                    <label for="region">Region</label>
+                    <select id="region" required>
+                        <option value="">Select Region</option>
+                        <option value="metro">Metro City (Price Index: 1.5)</option>
+                        <option value="tier1">Tier 1 City (Price Index: 1.2)</option>
+                        <option value="tier2">Tier 2 City (Price Index: 1.0)</option>
+                        <option value="tier3">Tier 3 City (Price Index: 0.8)</option>
+                        <option value="rural">Rural Area (Price Index: 0.6)</option>
+                    </select>
+                </div>
+
+                <div class="loading" id="loading">
+                    <div class="spinner"></div>
+                    <p>Calculating fair price...</p>
+                </div>
+
+                <button type="submit" class="btn">Calculate Fair Price</button>
+            </form>
+        </div>
+
+        <div class="result">
+            <h2>Estimated Fair Price</h2>
+            <div class="price-display" id="priceResult">₹0</div>
+            <p>This is an estimated market value based on your inputs</p>
+
+            <div class="price-breakdown" id="priceBreakdown">
+                <h3>Price Breakdown</h3>
+                <div class="breakdown-item">
+                    <span>Base Price (per sq ft):</span>
+                    <span id="basePrice">₹0</span>
+                </div>
+                <div class="breakdown-item">
+                    <span>Area Multiplier:</span>
+                    <span id="areaMultiplier">0 sq ft</span>
+                </div>
+                <div class="breakdown-item">
+                    <span>Region Adjustment:</span>
+                    <span id="regionAdjustment">0%</span>
+                </div>
+                <div class="breakdown-item">
+                    <span>Property Type Factor:</span>
+                    <span id="typeFactor">0%</span>
+                </div>
+                <div class="breakdown-item">
+                    <span>Estimated Fair Price:</span>
+                    <span id="finalPrice">₹0</span>
+                </div>
+            </div>
+        </div>
+        <div class="info-section">
+            <h2>How Our Calculator Works</h2>
+            <div class="info-grid">
+                <div class="info-card">
+                    <h3>Property Type</h3>
+                    <p>Different property types have different base values. Villas typically have higher value per square foot than apartments.</p>
+                </div>
+                <div class="info-card">
+                    <h3>Area Calculation</h3>
+                    <p>Larger properties generally have a higher total value, though price per square foot may decrease for very large properties.</p>
+                </div>
+                <div class="info-card">
+                    <h3>Regional Factors</h3>
+                    <p>Location significantly impacts property value. Our regional price indices reflect current market conditions in India.</p>
+                </div>
+                <div class="info-card">
+                    <h3>Market Data</h3>
+                    <p>Our calculations are based on current market trends and recent sales data in your selected region across India.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy;2025 Arnav Tiwari</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('priceCalculator');
+            const priceResult = document.getElementById('priceResult');
+            const loading = document.getElementById('loading');
+            const basePriceElem = document.getElementById('basePrice');
+            const areaMultiplierElem = document.getElementById('areaMultiplier');
+            const regionAdjustmentElem = document.getElementById('regionAdjustment');
+            const typeFactorElem = document.getElementById('typeFactor');
+            const finalPriceElem = document.getElementById('finalPrice');
+            const themeToggle = document.getElementById('themeToggle');
+            
+            // Check for saved theme preference or respect OS preference
+            const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
+            const currentTheme = localStorage.getItem('theme');
+            
+            if (currentTheme === 'dark' || (!currentTheme && prefersDarkScheme.matches)) {
+                document.body.classList.add('dark-mode');
+                // Update toggle button icon for dark mode
+                updateThemeIcon(true);
+            }
+            
+            // Theme toggle functionality
+            themeToggle.addEventListener('click', function() {
+                document.body.classList.toggle('dark-mode');
+                const isDarkMode = document.body.classList.contains('dark-mode');
+                localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
+                updateThemeIcon(isDarkMode);
+            });
+            
+            function updateThemeIcon(isDarkMode) {
+                const iconPaths = themeToggle.querySelectorAll('path');
+                if (isDarkMode) {
+                    // Sun icon for dark mode
+                    iconPaths[0].setAttribute('d', 'M12,17c-2.8,0-5-2.2-5-5s2.2-5,5-5s5,2.2,5,5S14.8,17,12,17z M12,9c-1.7,0-3,1.3-3,3s1.3,3,3,3s3-1.3,3-3S13.7,9,12,9z');
+                    iconPaths[1].setAttribute('d', 'M12,4c-0.6,0-1-0.4-1-1V1c0-0.6,0.4-1,1-1s1,0.4,1,1v2C13,3.6,12.6,4,12,4z');
+                    iconPaths[2].setAttribute('d', 'M12,20c-0.6,0-1,0.4-1,1v2c0,0.6,0.4,1,1,1s1-0.4,1-1v-2C13,20.4,12.6,20,12,20z');
+                    iconPaths[3].setAttribute('d', 'M5.6,6.6c-0.3,0-0.5-0.1-0.7-0.3L3.5,4.9c-0.4-0.4-0.4-1,0-1.4s1-0.4,1.4,0l1.4,1.4c0.4,0.4,0.4,1,0,1.4C6.2,6.5,5.9,6.6,5.6,6.6z');
+                    iconPaths[4].setAttribute('d', 'M19.8,16.8c-0.3,0-0.5-0.1-0.7-0.3l-1.4-1.4c-0.4-0.4-0.4-1,0-1.4s1-0.4,1.4,0l1.4,1.4c0.4,0.4,0.4,1,0,1.4C20.3,16.7,20,16.8,19.8,16.8z');
+                    iconPaths[5].setAttribute('d', 'M3,13H1c-0.6,0-1-0.4-1-1s0.4-1,1-1h2c0.6,0,1,0.4,1,1S3.6,13,3,13z');
+                    iconPaths[6].setAttribute('d', 'M23,13h-2c-0.6,0-1-0.4-1-1s0.4-1,1-1h2c0.6,0,1,0.4,1,1S23.6,13,23,13z');
+                    iconPaths[7].setAttribute('d', 'M4.2,16.8c-0.3,0-0.5-0.1-0.7-0.3c-0.4-0.4-0.4-1,0-1.4l1.4-1.4c0.4-0.4,1-0.4,1.4,0s0.4,1,0,1.4l-1.4,1.4C4.7,16.7,4.5,16.8,4.2,16.8z');
+                    iconPaths[8].setAttribute('d', 'M18.4,6.6c-0.3,0-0.5-0.1-0.7-0.3c-0.4-0.4-0.4-1,0-1.4l1.4-1.4c0.4-0.4,1-0.4,1.4,0s0.4,1,0,1.4l-1.4,1.4C18.9,6.5,18.6,6.6,18.4,6.6z');
+                } else {
+                    // Moon icon for light mode
+                    iconPaths[0].setAttribute('d', 'M12,11.8c-2.8,0-5,2.2-5,5s2.2,5,5,5s5-2.2,5-5S14.8,11.8,12,11.8z M12,19.8c-1.7,0-3-1.3-3-3s1.3-3,3-3s3,1.3,3,3S13.7,19.8,12,19.8z');
+                    iconPaths[1].setAttribute('d', 'M9,2L7.2,3.8C7.1,3.9,7,4.1,7,4.2v2.5c0,0.6,0.4,1,1,1h2.5c0.2,0,0.3-0.1,0.5-0.2L13,5h-2C10.4,5,10,4.6,10,4S10.4,3,11,3h2L9,2z');
+                    iconPaths[2].setAttribute('d', 'M9,22l1.8-1.8c0.1-0.1,0.3-0.2,0.5-0.2H14c0.6,0,1-0.4,1-1s-0.4-1-1-1h-2l2-2l1.8,1.8L9,22z');
+                    iconPaths[3].setAttribute('d', 'M22,12l-2,2v-2c0-0.6-0.4-1-1-1s-1,0.4-1,1v2l-2-2l2-2h2C21.6,10,22,10.4,22,11S21.6,12,22,12z');
+                    iconPaths[4].setAttribute('d', 'M2,12l2-2v2c0,0.6,0.4,1,1,1s1-0.4,1-1v-2l2,2l-2,2H3C2.4,14,2,13.6,2,13S2.4,12,2,12z');
+                    iconPaths[5].setAttribute('d', 'M12,2v2c0,0.6,0.4,1,1,1s1-0.4,1-1V2l2,2l-2,2h-2c-0.6,0-1-0.4-1-1s0.4-1,1-1h2L12,2z');
+                    iconPaths[6].setAttribute('d', 'M12,22v-2c0-0.6-0.4-1-1-1s-1,0.4-1,1v2l-2-2l2-2h2c0.6,0,1,0.4,1,1s-0.4,1-1,1h-2L12,22z');
+                    iconPaths[7].setAttribute('d', 'M4.2,7.8L2,10l2.2,2.2l1.4-1.4C5.8,10.6,6,10.3,6,10s-0.2-0.6-0.4-0.8L4.2,7.8z');
+                    iconPaths[8].setAttribute('d', 'M19.8,16.2L22,14l-2.2-2.2l-1.4,1.4C18.2,13.4,18,13.7,18,14s0.2,0.6,0.4,0.8L19.8,16.2z');
+                }
+            }
+            
+            // Base prices per square foot for different property types (in INR)
+            const basePrices = {
+                apartment: 8000,
+                house: 12000,
+                villa: 25000,
+                condo: 10000,
+                townhouse: 15000
+            };
+            
+            // Regional price multipliers for Indian cities
+            const regionMultipliers = {
+                metro: 1.5,    // Metro cities like Mumbai, Delhi, Bangalore
+                tier1: 1.2,    // Tier 1 cities like Pune, Hyderabad, Chennai
+                tier2: 1.0,    // Tier 2 cities like Kochi, Nagpur, Lucknow
+                tier3: 0.8,    // Tier 3 cities
+                rural: 0.6     // Rural areas
+            };
+            
+            // Property type multipliers (additional to base price)
+            const typeMultipliers = {
+                apartment: 1.0,
+                house: 1.2,
+                villa: 1.8,
+                condo: 1.1,
+                townhouse: 1.15
+            };
+            
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // Show loading indicator
+                loading.style.display = 'block';
+                
+                // Get form values
+                const propertyType = document.getElementById('propertyType').value;
+                const area = parseInt(document.getElementById('area').value);
+                const region = document.getElementById('region').value;
+                
+                // Simulate API call delay
+                setTimeout(() => {
+                    // Calculate fair price
+                    const basePricePerSqFt = basePrices[propertyType];
+                    const regionMultiplier = regionMultipliers[region];
+                    const typeMultiplier = typeMultipliers[propertyType];
+                    
+                    const basePrice = basePricePerSqFt * area;
+                    const regionAdjustedPrice = basePrice * regionMultiplier;
+                    const finalPrice = regionAdjustedPrice * typeMultiplier;
+                    
+                    // Format numbers with commas for INR
+                    const formatCurrency = (num) => {
+                        return '₹' + num.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+                    };
+                    
+                    const formatNumber = (num) => {
+                        return num.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+                    };
+                    
+                    // Update UI with results
+                    priceResult.textContent = formatCurrency(finalPrice);
+                    basePriceElem.textContent = formatCurrency(basePricePerSqFt) + '/sq ft';
+                    areaMultiplierElem.textContent = formatNumber(area) + ' sq ft';
+                    regionAdjustmentElem.textContent = ((regionMultiplier - 1) * 100).toFixed(0) + '%';
+                    typeFactorElem.textContent = ((typeMultiplier - 1) * 100).toFixed(0) + '%';
+                    finalPriceElem.textContent = formatCurrency(finalPrice);
+                    
+                    // Hide loading indicator
+                    loading.style.display = 'none';
+                }, 1500);
+            });
+            
+            // Add some interactivity to form elements
+            const formInputs = document.querySelectorAll('select, input');
+            formInputs.forEach(input => {
+                input.addEventListener('change', function() {
+                    // Reset result when inputs change
+                    priceResult.textContent = '₹0';
+                    basePriceElem.textContent = '₹0';
+                    areaMultiplierElem.textContent = '0 sq ft';
+                    regionAdjustmentElem.textContent = '0%';
+                    typeFactorElem.textContent = '0%';
+                    finalPriceElem.textContent = '₹0';
+                });
+            });
+        });
+    </script>
+    
+</html>
