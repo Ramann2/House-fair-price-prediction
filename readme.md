@@ -22,6 +22,3 @@ It features **a clean UI**, **dark mode toggle**, and **dynamic calculations** f
 1. Open `index.html` in any modern browser.
 2. Select property type, enter area, and choose region.
 3. Click **“Calculate Fair Price”** to view results instantly.
-
-
-Would you like me to make it a bit more *GitHub-ready* (with badges, preview image, and formatted code blocks)?
